@@ -14,6 +14,8 @@ void SimulatedAnnealing::beginSimulatedAnnealing(int startingVertex,
     generatePath(startingVertex, globalPath, gen);
     *finalCost = calculateCost(*globalPath);
 
+    showPRD(0);
+
     auto *temperature = new double;
     initialTemperature(temperature, alfa);
 
@@ -22,7 +24,7 @@ void SimulatedAnnealing::beginSimulatedAnnealing(int startingVertex,
 
     int iterationOfEra = (matrixWeights->getSize() * (matrixWeights->getSize() - 1)) / 2;
 
-    mainLoop(temperature, alfa, iterationOfEra, numberOfEras, p2, gen);
+    mainLoop(temperature, alfa, iterationOfEra, numberOfEras, p2);
 
     showPath(*globalPath);
     cout << *finalCost << "\n";
@@ -55,17 +57,21 @@ void SimulatedAnnealing::initialTemperature(double *temperature, double const al
 }
 
 /// główna pętla programu
-void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int iterationOfEra,
-                                  int numberOfEras, vector<unsigned> *p2, mt19937 &g) {
+void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int iterationOfEra, int numberOfEras,
+                                  vector<unsigned> *p2) {
+
+    random_device rd;
+    default_random_engine g(rd());
 
     int localMinCost = calculateCost(*p2);
     int localCost;
     auto *coordinates = new pair<int, int>;
 
     uniform_int_distribution<int> swapIterator(1, matrixWeights->getSize() - 1);
+    uniform_real_distribution<> generateProbability(0.0, 1.0);
 
-    for (int i = 0; i < numberOfEras; i++) {
-        for (int j = 0; j < iterationOfEra; j++) {
+    for (int i = 0; i < iterationOfEra; i++) {
+        for (int j = 0; j < numberOfEras; j++) {
 
             localCost = localMinCost;
             coordinates->first = swapIterator(g);
@@ -77,11 +83,12 @@ void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int it
                 *finalCost = localCost;
                 *globalPath = *p2;
                 swap(globalPath->at(coordinates->first), globalPath->at(coordinates->second));
+                showPRD(i * numberOfEras + j);
             }
 
             int delta = localCost - localMinCost;
 
-            if (delta < 0 || checkToChangeWorstSolution(delta, temperature, g)) {
+            if (delta < 0 || checkToChangeWorstSolution(delta, temperature,  generateProbability(g))) {
                 localMinCost = localCost;
                 swap(p2->at(coordinates->first), p2->at(coordinates->second));
             }
@@ -99,11 +106,9 @@ int SimulatedAnnealing::generateRandomNeighbour(vector<unsigned int> *p2, pair<i
         return swapNeighbors(p2, c->first, c->second);
 }
 
-bool SimulatedAnnealing::checkToChangeWorstSolution(int const delta, double *T, mt19937 &g) {
+bool SimulatedAnnealing::checkToChangeWorstSolution(int const delta, double *T,  double probability) {
 
-    uniform_real_distribution<> generateX(0.0, 1.0);
-
-    return generateX(g) < coolingFunction(delta, T);
+    return probability < coolingFunction(delta, T);
 }
 
 void SimulatedAnnealing::calculateTemperature(double *T, double const alfa) {
@@ -112,7 +117,7 @@ void SimulatedAnnealing::calculateTemperature(double *T, double const alfa) {
 
 double SimulatedAnnealing::coolingFunction(int const delta, const double *T) {
 
-    return exp(delta / (*T));
+    return exp(-delta / (*T));
 }
 
 int SimulatedAnnealing::swapNeighbors(vector<unsigned int> *path, int i, int j) {
@@ -161,4 +166,14 @@ int SimulatedAnnealing::calculateCost(vector<unsigned> path) {
         i.operator++();
     }
     return cost;
+}
+
+void SimulatedAnnealing::showPRD(int iter) {
+    std::cout << iter
+              << "   "
+              << *finalCost
+              << "   "
+              << 100 * (((float) (*finalCost - matrixWeights->getOptimum()))
+                        / (float) matrixWeights->getOptimum())
+              << "% \n";
 }

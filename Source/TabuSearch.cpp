@@ -5,6 +5,8 @@
 #include <cmath>
 #include <random>
 #include <algorithm>
+#include <windows.h>
+#include <iomanip>
 #include "../Header/TabuSearch.h"
 
 using namespace std;
@@ -22,7 +24,7 @@ using namespace std;
  * @param dividerTenure - dzielnik kadencji
  */
 void TabuSearch::beginTabuSearch(int iterations, int lifetime, int typeNeighborhood, int startingVertex, int tenure,
-                                 int dividerTenure) {
+                                 int dividerTenure, bool directedGraph) {
     generatePath(startingVertex);
 
     mainLoop(iterations, lifetime, typeNeighborhood, tenure, dividerTenure);
@@ -34,30 +36,49 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int neighborhood, int &t
     int i = 0;
     int j = 0;
 
+    long long int frequency;
+    QueryPerformanceFrequency((LARGE_INTEGER *) &frequency);
+
     vector<unsigned int> path = globalPath;
 
-    int *localCost = new int[1];
+    bool aspirationCriteria = false;
+
+    int *localCost = new int;
     *localCost = *finalCost;
+
     showPRD(0);
+
+    double start = read_QPC();
+
     while (i != iterations) {
 
         j++;
-        findBestNeighbor(neighborhood, &path, localCost, tenure);
+
+        if (!aspirationCriteria)
+            findBest(neighborhood, &path, localCost, tenure);
+        else {
+            aspirationCriteria = false;
+            findBest(neighborhood, &path, localCost, tenure / dividerTenure);
+        }
 
         if (*localCost < *finalCost) {
             i = 0;
             *finalCost = *localCost;
             globalPath = path;
-            dividerTabuList(tenure, dividerTenure);
+            aspirationCriteria = true;
             showPRD(j);
         } else
             i++;
 
-
+        if ((read_QPC() - start )/ frequency > lifetime)
+            break;
     }
+
+    delete localCost;
     showPath(globalPath);
     cout << *finalCost;
 }
+
 
 void TabuSearch::showPRD(int iter) {
     std::cout << iter
@@ -71,6 +92,7 @@ void TabuSearch::showPRD(int iter) {
 
 /// generowanie pseudolosowej startowej ścieżki
 void TabuSearch::generatePath(int startingVertex) {
+
     globalPath.push_back(startingVertex);
     for (int i = 0; i < matrixWeights->getSize(); i++) {
         if (i != startingVertex)
@@ -90,35 +112,17 @@ void TabuSearch::generatePath(int startingVertex) {
 
 }
 
-int TabuSearch::calculateCost(vector<unsigned int> path) {
+void TabuSearch::findBest(int type, vector<unsigned int> *path, int *localCost, int tenure) {
 
-    int cost = 0;
-    auto i = path.begin();
-    while (i != (path.end() - 1)) {
-        cost += matrix[i.operator*()][(i + 1).operator*()];
-        i.operator++();
+
+    switch (type) {
+        case 1:
+            findBestNeighborSwap(path, localCost, tenure);
+            break;
     }
-    return cost;
 }
 
-void TabuSearch::showPath(vector<unsigned int> path) {
-
-    for (int i = 0; i < path.size() - 1; i++)
-        cout << path.at(i) << "->";
-
-    cout << path.back() << "\n";
-}
-
-
-void TabuSearch::dividerTabuList(int &tenure, int dividerTenure) {
-
-    if (tenure/dividerTenure  > 2)
-        tenure /= dividerTenure;
-    else
-        tenure = 2;
-}
-
-void TabuSearch::findBestNeighbor(int type, vector<unsigned int> *path, int *localCost, int tenure) {
+void TabuSearch::findBestNeighborSwap(vector<unsigned int> *path, int *localCost, int tenure) {
 
     vector<unsigned int> pairTabu(3, 0);
     pairTabu.at(2) = tenure;
@@ -129,22 +133,20 @@ void TabuSearch::findBestNeighbor(int type, vector<unsigned int> *path, int *loc
     for (int i = 1; i < path->size() - 1; i++) {
         for (int j = i + 1; j < path->size() - 1; j++) {
 
-            if (type == 1) {
+            deltaValue = insertNeighbors(path, i, j);
 
-                deltaValue = swapNeighbors(path, i, j);
+            if (deltaValue < minCost) {
+                if (!checkAspirationCriteria(i, j, path))
+                    if (*localCost + deltaValue >= *finalCost)
+                        continue;
 
-                if (deltaValue < minCost) {
-                    if (!checkAspirationCriteria(i, j, path))
-                        if (*localCost + deltaValue >= *finalCost)
-                            continue;
-
-                    p.first = i;
-                    p.second = j;
-                    minCost = deltaValue;
+                p.first = i;
+                p.second = j;
+                minCost = deltaValue;
 
 
-                }
             }
+
         }
     }
     *localCost += minCost;
@@ -161,21 +163,8 @@ void TabuSearch::findBestNeighbor(int type, vector<unsigned int> *path, int *loc
 
 }
 
-/// dekrementacja tabu listy
-void TabuSearch::decrementTabuList() {
-
-    for (int i = 0; i < tabuList.size(); i++) {
-        tabuList.at(i).at(2)--;
-
-        if (tabuList.at(i).at(2) == 0) {
-            tabuList.erase(tabuList.begin() + i);
-            i -= 1;
-        }
-    }
-}
-
 /// podliczanie zmiany kosztów po zamianie wierzchołków
-int TabuSearch::swapNeighbors(vector<unsigned int> *path, int i, int j) {
+int TabuSearch::insertNeighbors(vector<unsigned int> *path, int i, int j) {
 
     int subtractOldEdges = 0;
     int addNewEdges = 0;
@@ -203,6 +192,41 @@ int TabuSearch::swapNeighbors(vector<unsigned int> *path, int i, int j) {
     return addNewEdges - subtractOldEdges;
 }
 
+
+/// wyświetlanie ścieżki
+void TabuSearch::showPath(vector<unsigned int> path) {
+
+    for (int i = 0; i < path.size() - 1; i++)
+        cout << path.at(i) << "->";
+
+    cout << path.back() << "\n";
+}
+
+/// obliczanie kosztu ścieżki
+int TabuSearch::calculateCost(vector<unsigned int> path) {
+
+    int cost = 0;
+    auto i = path.begin();
+    while (i != (path.end() - 1)) {
+        cost += matrix[i.operator*()][(i + 1).operator*()];
+        i.operator++();
+    }
+    return cost;
+}
+
+/// dekrementacja tabu listy
+void TabuSearch::decrementTabuList() {
+
+    for (int i = 0; i < tabuList.size(); i++) {
+        tabuList.at(i).at(2)--;
+
+        if (tabuList.at(i).at(2) == 0) {
+            tabuList.erase(tabuList.begin() + i);
+            i -= 1;
+        }
+    }
+}
+
 /// sprawdzamy czy krawędź znajduje się na tabu liście
 bool TabuSearch::checkAspirationCriteria(int i, int j, vector<unsigned int> const *path) {
     for (vector<unsigned int> v: tabuList) {
@@ -212,4 +236,10 @@ bool TabuSearch::checkAspirationCriteria(int i, int j, vector<unsigned int> cons
             return false;
     }
     return true;
+}
+
+long long int TabuSearch::read_QPC() {
+    LARGE_INTEGER count;
+    QueryPerformanceCounter(&count);
+    return ((long long int) count.QuadPart);
 }

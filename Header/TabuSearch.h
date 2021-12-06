@@ -39,27 +39,27 @@ public:
     }
 
     void beginTabuSearch(int iterations, int lifetime, int typeNeighborhood, int startingVertex, int tenure,
-                         int dividerTenure);
+                         int dividerTenure, bool directedGraph);
 
     static void showPath(vector<unsigned int> path);
 
     int calculateCost(vector<unsigned int> path);
 
-    void findBestNeighbor(int type, vector<unsigned int> *path, int *localCost, int tenure);
+    void findBestNeighborSwap(vector<unsigned int> *path, int *localCost, int tenure);
 
-    int swapNeighbors(vector<unsigned int> *path, int i, int j);
+    int insertNeighbors(vector<unsigned int> *path, int i, int j);
 
     bool checkAspirationCriteria(int i, int j, vector<unsigned int> const *path);
 
     void mainLoop(int iterations, int lifetime, int neighborhood, int &tenure, int dividerTenure);
 
-    void decrementTabuList(int dividerTenure);
-
-    static void dividerTabuList(int &tenure, int dividerTenure);
-
     void decrementTabuList();
 
     void showPRD(int iter);
+
+    void findBest(int type, vector<unsigned int> *path, int *localCost, int tenure);
+
+    long long int read_QPC();
 };
 
 
