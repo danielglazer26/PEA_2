@@ -13,10 +13,10 @@ private:
     int *finalCost;
     Matrix *matrixWeights;
     int **matrix;
-    int *tabuList;
-    vector<int> globalPath;
+    vector<vector<unsigned int>>tabuList;
+    vector<unsigned int> globalPath;
 
-    void firstPath(int startingVertex);
+    void generatePath(int startingVertex);
 
 public:
 
@@ -25,9 +25,6 @@ public:
         if (matrixWeights->getMatrixWeights() != nullptr) {
             finalCost = new int;
             *finalCost = 0;
-            tabuList = new int[matrixWeights->getSize()];
-            for (int i = 0; i < matrixWeights->getSize(); i++)
-                tabuList[i] = 0;
             matrix = matrixWeights->getMatrixWeights();
         }
 
@@ -44,21 +41,25 @@ public:
     void beginTabuSearch(int iterations, int lifetime, int typeNeighborhood, int startingVertex, int tenure,
                          int dividerTenure);
 
-    void showPath(vector<int> path);
+    static void showPath(vector<unsigned int> path);
 
-    int calculateCost(vector<int> path);
+    int calculateCost(vector<unsigned int> path);
 
-    void findBestNeighbor(int type, vector<int> *path, int *localCost, int tenure);
+    void findBestNeighbor(int type, vector<unsigned int> *path, int *localCost, int tenure);
 
-    int swapNeighbors(vector<int> path, int *localCost, int i, int j);
+    int swapNeighbors(vector<unsigned int> *path, int i, int j);
 
-    bool checkAspirationCriteria(int i, int j, vector<int> const *path);
+    bool checkAspirationCriteria(int i, int j, vector<unsigned int> const *path);
 
-    void mainLoop(int iterations, int lifetime, int neighborhood, int tenure, int i);
+    void mainLoop(int iterations, int lifetime, int neighborhood, int &tenure, int dividerTenure);
+
+    void decrementTabuList(int dividerTenure);
+
+    static void dividerTabuList(int &tenure, int dividerTenure);
 
     void decrementTabuList();
 
-    void dividerTabuList(int tenure, int dividerTenure);
+    void showPRD(int iter);
 };
 
 

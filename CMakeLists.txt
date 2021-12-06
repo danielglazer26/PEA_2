@@ -3,4 +3,4 @@ project(Etap2)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Etap2 main.cpp Source/TabuSearch.cpp Header/TabuSearch.h Source/Matrix.cpp Header/Matrix.h Source/LoadFromFile.cpp Header/LoadFromFile.h)
+add_executable(Etap2 main.cpp Source/TabuSearch.cpp Header/TabuSearch.h Source/Matrix.cpp Header/Matrix.h Source/LoadFromFile.cpp Header/LoadFromFile.h Source/SimulatedAnnealing.cpp Header/SimulatedAnnealing.h)

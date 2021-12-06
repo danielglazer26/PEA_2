@@ -3,7 +3,7 @@
 
 ///załadowanie pliku grafu
 bool LoadFromFile::openFile(){
-    std::string nameOfFile ="m6.atsp";
+    std::string nameOfFile ="hk48.tsp";
 
    /* std::cout << "Podaj nazwe pliku" << std::endl;
     std::cin >> nameOfFile;*/
