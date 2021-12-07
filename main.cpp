@@ -14,28 +14,26 @@ void menu() {
         switch (a - 1) {
             case 0:
                 tabuSearch = new TabuSearch();
-                int i, l, t, s, ten, d, dG;
+                int i, l, s, ten, d;
                 std::cout << "Podaj liczbe iteracji \n";
                 cin >> i;
                 std::cout << "Podaj czas trwania \n";
                 cin >> l;
-                std::cout << "Podaj typ sąsiedztwa \n";
-                cin >> t;
-                std::cout << "Podaj startowy wierzchołek \n";
+                std::cout << "Podaj startowy wierzcholek \n";
                 cin >> s;
                 std::cout << "Podaj kadencje \n";
                 cin >> ten;
                 std::cout << "Podaj dzielnik kadencji \n";
                 cin >> d;
                 tabuSearch->beginTabuSearch(i, l, s, ten, d);
-                // 30000, 30, 1, 34, 48, 1, false
+                // 30000, 30, 34, 48, 1
                 delete tabuSearch;
                 break;
             case 1:
                 simulatedAnnealing = new SimulatedAnnealing();
                 int sV, e, tem, iE;
                 double a;
-                std::cout << "Podaj startowy wierzchołek \n";
+                std::cout << "Podaj startowy wierzcholek \n";
                 cin >> sV;
                 std::cout << "Podaj alfe \n";
                 cin >> a;
@@ -43,7 +41,7 @@ void menu() {
                 cin >> e;
                 std::cout << "Podaj liczbe iteracji w epoce \n";
                 cin >> iE;
-                std::cout << "Podaj startową temperature \n";
+                std::cout << "Podaj startowa temperature \n";
                 cin >> tem;
                 simulatedAnnealing->beginSimulatedAnnealing(sV, a, e, iE, tem);
                 // 22, 0.99, 1000, 10000, 0
