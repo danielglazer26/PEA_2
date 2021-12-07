@@ -5,8 +5,8 @@
 bool LoadFromFile::openFile(){
     std::string nameOfFile ="hk48.tsp";
 
-   /* std::cout << "Podaj nazwe pliku" << std::endl;
-    std::cin >> nameOfFile;*/
+   std::cout << "Podaj nazwe pliku" << std::endl;
+    std::cin >> nameOfFile;
     std::cout << "\n";
     file.open(nameOfFile);
     if(!file.is_open()) {

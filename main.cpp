@@ -27,20 +27,26 @@ void menu() {
                 cin >> ten;
                 std::cout << "Podaj dzielnik kadencji \n";
                 cin >> d;
-                tabuSearch->beginTabuSearch(i, l, t, s, ten, d, false);
+                tabuSearch->beginTabuSearch(i, l, s, ten, d);
                 // 30000, 30, 1, 34, 48, 1, false
                 delete tabuSearch;
                 break;
             case 1:
                 simulatedAnnealing = new SimulatedAnnealing();
-                int sV, a, e;
+                int sV, e, tem, iE;
+                double a;
                 std::cout << "Podaj startowy wierzchołek \n";
                 cin >> sV;
                 std::cout << "Podaj alfe \n";
                 cin >> a;
                 std::cout << "Podaj liczbe epok \n";
                 cin >> e;
-                simulatedAnnealing->beginSimulatedAnnealing(sV, a, e);
+                std::cout << "Podaj liczbe iteracji w epoce \n";
+                cin >> iE;
+                std::cout << "Podaj startową temperature \n";
+                cin >> tem;
+                simulatedAnnealing->beginSimulatedAnnealing(sV, a, e, iE, tem);
+                // 22, 0.99, 1000, 10000, 0
                 delete simulatedAnnealing;
                 break;
         }
@@ -50,9 +56,8 @@ void menu() {
 }
 
 int main() {
-    //menu();
-    auto  simulatedAnnealing = new SimulatedAnnealing();
-    simulatedAnnealing->beginSimulatedAnnealing(0, 0.90, 1000);
+    menu();
+
     return 0;
 }
 

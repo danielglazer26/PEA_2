@@ -17,21 +17,6 @@ private:
     int **matrix;
     vector<unsigned> *globalPath;
 
-public:
-
-    SimulatedAnnealing() {
-        matrixWeights = new Matrix();
-        if (matrixWeights->getMatrixWeights() != nullptr) {
-            globalPath = new vector<unsigned>;
-            finalCost = new int;
-            *finalCost = 0;
-            matrix = matrixWeights->getMatrixWeights();
-        }
-
-    }
-
-    void beginSimulatedAnnealing(int startingVertex, double alfa, int numberOfEras);
-
     void generatePath(int startingVertex, vector<unsigned int> *path, mt19937 &g);
 
     int calculateCost(vector<unsigned> path);
@@ -46,14 +31,40 @@ public:
 
     void initialTemperature(double *temperature, double alfa);
 
-    void mainLoop(double *temperature, const double alfa, int iterationOfEra, int numberOfEras,
+    void mainLoop(double *temperature, double alfa, int iterationOfEra, int numberOfEras,
                   vector<unsigned> *p2);
 
     int generateRandomNeighbour(vector<unsigned int> *p2, pair<int, int> *pPair);
 
-    static bool checkToChangeWorstSolution(int const delta, double *T,  double probability);
+    static bool checkToChangeWorstSolution(int delta, double *T,  double probability);
 
     void showPRD(int iter);
+
+public:
+
+    SimulatedAnnealing() {
+        matrixWeights = new Matrix();
+        if (matrixWeights->getMatrixWeights() != nullptr) {
+            globalPath = new vector<unsigned>;
+            finalCost = new int;
+            *finalCost = 0;
+            matrix = matrixWeights->getMatrixWeights();
+        }
+
+    }
+    ~SimulatedAnnealing(){
+        if (matrixWeights->getMatrixWeights() != nullptr) {
+            delete finalCost;
+            delete globalPath;
+            matrixWeights->deleteMatrixTable(matrix);
+        }
+        delete matrixWeights;
+    }
+
+    void beginSimulatedAnnealing(int startingVertex, double alfa, int numberOfEras,
+                                 int iterationOfEra, int startingTemperature);
+
+
 };
 
 

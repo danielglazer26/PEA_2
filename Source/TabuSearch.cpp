@@ -15,23 +15,20 @@ using namespace std;
  *
  * @param iterations - limit iteracji bez poprawy globalnego optimum
  * @param lifetime - maksymalny czas trwania algorytmu
- * @param typeNeighborhood - sposób wyboru sąsiedztwa
- *      1. swap
- *      2. reverse
- *      3. insert
  * @param startingVertex - wierzchołek startowy
  * @param tenure - liczba iteracji przez jaką ruch jest przechowywany na liście tabu
  * @param dividerTenure - dzielnik kadencji
  */
-void TabuSearch::beginTabuSearch(int iterations, int lifetime, int typeNeighborhood, int startingVertex, int tenure,
-                                 int dividerTenure, bool directedGraph) {
+void TabuSearch::beginTabuSearch(int iterations, int lifetime, int startingVertex, int tenure, int dividerTenure) {
+
     generatePath(startingVertex);
 
-    mainLoop(iterations, lifetime, typeNeighborhood, tenure, dividerTenure);
+    mainLoop(iterations, lifetime, tenure, dividerTenure);
 
 }
 
-void TabuSearch::mainLoop(int iterations, int lifetime, int neighborhood, int &tenure, int dividerTenure) {
+/// główna pętla programu
+void TabuSearch::mainLoop(int iterations, int lifetime, int &tenure, int dividerTenure) {
 
     int i = 0;
     int j = 0;
@@ -55,10 +52,10 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int neighborhood, int &t
         j++;
 
         if (!aspirationCriteria)
-            findBest(neighborhood, &path, localCost, tenure);
+            findBestNeighborSwap(&path, localCost, tenure);
         else {
             aspirationCriteria = false;
-            findBest(neighborhood, &path, localCost, tenure / dividerTenure);
+            findBestNeighborSwap(&path, localCost, tenure / dividerTenure);
         }
 
         if (*localCost < *finalCost) {
@@ -70,7 +67,7 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int neighborhood, int &t
         } else
             i++;
 
-        if ((read_QPC() - start )/ frequency > lifetime)
+        if ((read_QPC() - start)/ frequency > lifetime)
             break;
     }
 
@@ -112,16 +109,6 @@ void TabuSearch::generatePath(int startingVertex) {
 
 }
 
-void TabuSearch::findBest(int type, vector<unsigned int> *path, int *localCost, int tenure) {
-
-
-    switch (type) {
-        case 1:
-            findBestNeighborSwap(path, localCost, tenure);
-            break;
-    }
-}
-
 void TabuSearch::findBestNeighborSwap(vector<unsigned int> *path, int *localCost, int tenure) {
 
     vector<unsigned int> pairTabu(3, 0);
@@ -133,7 +120,7 @@ void TabuSearch::findBestNeighborSwap(vector<unsigned int> *path, int *localCost
     for (int i = 1; i < path->size() - 1; i++) {
         for (int j = i + 1; j < path->size() - 1; j++) {
 
-            deltaValue = insertNeighbors(path, i, j);
+            deltaValue = swapNeighbors(path, i, j);
 
             if (deltaValue < minCost) {
                 if (!checkAspirationCriteria(i, j, path))
@@ -164,7 +151,7 @@ void TabuSearch::findBestNeighborSwap(vector<unsigned int> *path, int *localCost
 }
 
 /// podliczanie zmiany kosztów po zamianie wierzchołków
-int TabuSearch::insertNeighbors(vector<unsigned int> *path, int i, int j) {
+int TabuSearch::swapNeighbors(vector<unsigned int> *path, int i, int j) {
 
     int subtractOldEdges = 0;
     int addNewEdges = 0;
@@ -238,6 +225,7 @@ bool TabuSearch::checkAspirationCriteria(int i, int j, vector<unsigned int> cons
     return true;
 }
 
+/// podliczanie czasu
 long long int TabuSearch::read_QPC() {
     LARGE_INTEGER count;
     QueryPerformanceCounter(&count);

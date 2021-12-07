@@ -4,11 +4,19 @@
 #include "../Header/SimulatedAnnealing.h"
 
 using namespace std;
-
+/**
+ *
+ * @param startingVertex - wierzchołek startowy
+ * @param alfa - współczynnik schładzania temperatury
+ * @param numberOfEras - liczba epok
+ * @param iterationOfEra - liczba iteracji
+ * @param startingTemperature - startowa temperatura (jeśli 0 to liczymy ją na podstawie pierwszego rozwiązania)
+ */
 void SimulatedAnnealing::beginSimulatedAnnealing(int startingVertex,
-                                                 double const alfa, int numberOfEras) {
+                                                 double const alfa, int numberOfEras,
+                                                 int iterationOfEra, int startingTemperature) {
 
-    random_device rd;
+    std::random_device rd;
     mt19937 gen(rd());
 
     generatePath(startingVertex, globalPath, gen);
@@ -17,12 +25,13 @@ void SimulatedAnnealing::beginSimulatedAnnealing(int startingVertex,
     showPRD(0);
 
     auto *temperature = new double;
-    initialTemperature(temperature, alfa);
+    if (startingTemperature == 0)
+        initialTemperature(temperature, alfa);
+    else
+        *temperature = startingTemperature;
 
     auto *p2 = new vector<unsigned>;
     generatePath(startingVertex, p2, gen);
-
-    int iterationOfEra = (matrixWeights->getSize() * (matrixWeights->getSize() - 1)) / 2;
 
     mainLoop(temperature, alfa, iterationOfEra, numberOfEras, p2);
 
@@ -70,8 +79,8 @@ void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int it
     uniform_int_distribution<int> swapIterator(1, matrixWeights->getSize() - 1);
     uniform_real_distribution<> generateProbability(0.0, 1.0);
 
-    for (int i = 0; i < iterationOfEra; i++) {
-        for (int j = 0; j < numberOfEras; j++) {
+    for (int i = 0; i < numberOfEras; i++) {
+        for (int j = 0; j < iterationOfEra; j++) {
 
             localCost = localMinCost;
             coordinates->first = swapIterator(g);
@@ -83,12 +92,12 @@ void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int it
                 *finalCost = localCost;
                 *globalPath = *p2;
                 swap(globalPath->at(coordinates->first), globalPath->at(coordinates->second));
-                showPRD(i * numberOfEras + j);
+                showPRD(i * iterationOfEra + j);
             }
 
             int delta = localCost - localMinCost;
 
-            if (delta < 0 || checkToChangeWorstSolution(delta, temperature,  generateProbability(g))) {
+            if (delta < 0 || checkToChangeWorstSolution(delta, temperature, generateProbability(g))) {
                 localMinCost = localCost;
                 swap(p2->at(coordinates->first), p2->at(coordinates->second));
             }
@@ -97,7 +106,7 @@ void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int it
     }
     delete coordinates;
 }
-
+/// wywołujemy odpowiednie podliczanie zamiany wierzchołków
 int SimulatedAnnealing::generateRandomNeighbour(vector<unsigned int> *p2, pair<int, int> *c) {
 
     if (c->first > c->second)
@@ -106,20 +115,25 @@ int SimulatedAnnealing::generateRandomNeighbour(vector<unsigned int> *p2, pair<i
         return swapNeighbors(p2, c->first, c->second);
 }
 
-bool SimulatedAnnealing::checkToChangeWorstSolution(int const delta, double *T,  double probability) {
+/// sprawdzamy czy prawdopodobieństwo jest mniejsze niż wartość ze wzoru na prawd. akceptacji
+bool SimulatedAnnealing::checkToChangeWorstSolution(int const delta, double *T, double probability) {
 
     return probability < coolingFunction(delta, T);
 }
 
+/// funkcja chłodzenia
 void SimulatedAnnealing::calculateTemperature(double *T, double const alfa) {
+
     *T *= alfa;
 }
 
+/// obliczanie wzoru na prawdopodobieństwo akceptacji
 double SimulatedAnnealing::coolingFunction(int const delta, const double *T) {
 
     return exp(-delta / (*T));
 }
 
+/// podliczanie zamiany wierzchołków
 int SimulatedAnnealing::swapNeighbors(vector<unsigned int> *path, int i, int j) {
 
     int subtractOldEdges = 0;
@@ -148,6 +162,7 @@ int SimulatedAnnealing::swapNeighbors(vector<unsigned int> *path, int i, int j) 
     return addNewEdges - subtractOldEdges;
 }
 
+/// wyświetlanie ścieżki
 void SimulatedAnnealing::showPath(vector<unsigned> path) {
 
     for (int i = 0; i < path.size() - 1; i++)
@@ -157,6 +172,7 @@ void SimulatedAnnealing::showPath(vector<unsigned> path) {
 
 }
 
+/// obliczanie kosztu ścieżki
 int SimulatedAnnealing::calculateCost(vector<unsigned> path) {
 
     int cost = 0;
@@ -168,6 +184,7 @@ int SimulatedAnnealing::calculateCost(vector<unsigned> path) {
     return cost;
 }
 
+/// wyświetlanie PRD
 void SimulatedAnnealing::showPRD(int iter) {
     std::cout << iter
               << "   "
