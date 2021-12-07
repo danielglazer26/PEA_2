@@ -18,6 +18,24 @@ private:
 
     void generatePath(int startingVertex);
 
+    static void showPath(vector<unsigned int> path);
+
+    int calculateCost(vector<unsigned int> path);
+
+    void findBestNeighborSwap(vector<unsigned int> *path, int *localCost, int tenure);
+
+    int swapNeighbors(vector<unsigned int> *path, int i, int j);
+
+    bool checkAspirationCriteria(int i, int j, vector<unsigned int> const *path);
+
+    void mainLoop(int iterations, int lifetime, int &tenure, int dividerTenure);
+
+    void decrementTabuList();
+
+    void showPRD(int iter);
+
+    static long long int read_QPC();
+
 public:
 
     TabuSearch() {
@@ -40,23 +58,6 @@ public:
 
     void beginTabuSearch(int iterations, int lifetime, int startingVertex, int tenure, int dividerTenure);
 
-    static void showPath(vector<unsigned int> path);
-
-    int calculateCost(vector<unsigned int> path);
-
-    void findBestNeighborSwap(vector<unsigned int> *path, int *localCost, int tenure);
-
-    int swapNeighbors(vector<unsigned int> *path, int i, int j);
-
-    bool checkAspirationCriteria(int i, int j, vector<unsigned int> const *path);
-
-    void mainLoop(int iterations, int lifetime, int &tenure, int dividerTenure);
-
-    void decrementTabuList();
-
-    void showPRD(int iter);
-
-    long long int read_QPC();
 };
 
 

@@ -2,7 +2,6 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include <cmath>
 #include <random>
 #include <algorithm>
 #include <windows.h>
@@ -45,7 +44,7 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int &tenure, int divider
 
     showPRD(0);
 
-    double start = read_QPC();
+    long long start = read_QPC();
 
     while (i != iterations) {
 
@@ -108,7 +107,7 @@ void TabuSearch::generatePath(int startingVertex) {
     *finalCost = calculateCost(globalPath);
 
 }
-
+/// znajdowanie zamiany, która najlepiej wpłynie na końcowy wynik
 void TabuSearch::findBestNeighborSwap(vector<unsigned int> *path, int *localCost, int tenure) {
 
     vector<unsigned int> pairTabu(3, 0);
