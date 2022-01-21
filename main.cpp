@@ -1,9 +1,10 @@
 #include <iostream>
 #include "Header/TabuSearch.h"
 #include "Header/SimulatedAnnealing.h"
+#include "Tests/Test.h"
 
 void menu() {
-    int a;
+    int a, b = 0;
     do {
         TabuSearch *tabuSearch;
         SimulatedAnnealing *simulatedAnnealing;
@@ -54,8 +55,9 @@ void menu() {
 }
 
 int main() {
-    menu();
-
+    //menu();
+    Test * test = new Test();
+    test->test();
     return 0;
 }
 

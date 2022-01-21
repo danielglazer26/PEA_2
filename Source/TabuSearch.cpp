@@ -42,7 +42,7 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int &tenure, int divider
     int *localCost = new int;
     *localCost = *finalCost;
 
-    showPRD(0);
+    //showPRD(0);
 
     long long start = read_QPC();
 
@@ -62,7 +62,7 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int &tenure, int divider
             *finalCost = *localCost;
             globalPath = path;
             aspirationCriteria = true;
-            showPRD(j);
+            //showPRD(j);
         } else
             i++;
 
@@ -71,7 +71,7 @@ void TabuSearch::mainLoop(int iterations, int lifetime, int &tenure, int divider
     }
 
     delete localCost;
-    showPath(globalPath);
+   // showPath(globalPath);
     cout << *finalCost;
 }
 
@@ -229,4 +229,12 @@ long long int TabuSearch::read_QPC() {
     LARGE_INTEGER count;
     QueryPerformanceCounter(&count);
     return ((long long int) count.QuadPart);
+}
+
+int *TabuSearch::getFinalCost() const {
+    return finalCost;
+}
+
+Matrix *TabuSearch::getMatrixWeights() const {
+    return matrixWeights;
 }

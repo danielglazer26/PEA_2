@@ -11,7 +11,15 @@ class TabuSearch {
 
 private:
     int *finalCost;
+public:
+    int *getFinalCost() const;
+
+private:
     Matrix *matrixWeights;
+public:
+    Matrix *getMatrixWeights() const;
+
+private:
     int **matrix;
     vector<vector<unsigned int>>tabuList;
     vector<unsigned int> globalPath;
@@ -45,7 +53,12 @@ public:
             *finalCost = 0;
             matrix = matrixWeights->getMatrixWeights();
         }
-
+    }
+    TabuSearch(std::string fileName) {
+        matrixWeights = new Matrix(fileName);
+        matrix = matrixWeights->getMatrixWeights();
+        finalCost = new int;
+        *finalCost = 0;
     }
 
     ~TabuSearch() {

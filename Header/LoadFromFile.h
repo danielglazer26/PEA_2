@@ -13,6 +13,8 @@ public:
     ~LoadFromFile() {
         file.close();
     }
+    bool openFileName(std::string nameOfFile);
+
 private:
 
     std::fstream file;

@@ -13,6 +13,12 @@ class SimulatedAnnealing {
 private:
 
     int *finalCost;
+public:
+    int *getFinalCost() const;
+
+    Matrix *getMatrixWeights() const;
+
+private:
     Matrix *matrixWeights;
     int **matrix;
     vector<unsigned> *globalPath;
@@ -50,8 +56,15 @@ public:
             *finalCost = 0;
             matrix = matrixWeights->getMatrixWeights();
         }
-
     }
+    SimulatedAnnealing(std::string fileName){
+        matrixWeights = new Matrix(fileName);
+        matrix = matrixWeights->getMatrixWeights();
+        globalPath = new vector<unsigned>;
+        finalCost = new int;
+        *finalCost = 0;
+    }
+
     ~SimulatedAnnealing(){
         if (matrixWeights->getMatrixWeights() != nullptr) {
             delete finalCost;

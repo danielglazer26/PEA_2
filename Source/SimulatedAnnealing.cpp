@@ -22,7 +22,7 @@ void SimulatedAnnealing::beginSimulatedAnnealing(int startingVertex,
     generatePath(startingVertex, globalPath, gen);
     *finalCost = calculateCost(*globalPath);
 
-    showPRD(0);
+    //showPRD(0);
 
     auto *temperature = new double;
     if (startingTemperature == 0)
@@ -35,8 +35,8 @@ void SimulatedAnnealing::beginSimulatedAnnealing(int startingVertex,
 
     mainLoop(temperature, alfa, iterationOfEra, numberOfEras, p2);
 
-    showPath(*globalPath);
-    cout << *finalCost << "\n";
+    //showPath(*globalPath);
+    //cout << *finalCost << "\n";
 
     delete temperature;
     delete p2;
@@ -92,7 +92,7 @@ void SimulatedAnnealing::mainLoop(double *temperature, const double alfa, int it
                 *finalCost = localCost;
                 *globalPath = *p2;
                 swap(globalPath->at(coordinates->first), globalPath->at(coordinates->second));
-                showPRD(i * iterationOfEra + j);
+                //showPRD(i * iterationOfEra + j);
             }
 
             int delta = localCost - localMinCost;
@@ -193,4 +193,12 @@ void SimulatedAnnealing::showPRD(int iter) {
               << 100 * (((float) (*finalCost - matrixWeights->getOptimum()))
                         / (float) matrixWeights->getOptimum())
               << "% \n";
+}
+
+int *SimulatedAnnealing::getFinalCost() const {
+    return finalCost;
+}
+
+Matrix *SimulatedAnnealing::getMatrixWeights() const {
+    return matrixWeights;
 }

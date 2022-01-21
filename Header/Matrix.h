@@ -6,8 +6,12 @@
 
 class Matrix {
 public:
-    Matrix() {
-        loadData();
+    Matrix() { loadData(); }
+
+    Matrix(std::string fileName) { loadDataName(fileName); }
+
+    Matrix(bool directed, int vNumber) {
+        createNewMatrix(directed, vNumber);
     }
 
     void showMatrixWages();
@@ -32,6 +36,10 @@ private:
     void createMatrix(LoadFromFile *loadFromFile);
 
     void loadData();
+
+    void createNewMatrix(bool directed, int vNumber);
+
+    void loadDataName(std::string fileName);
 };
 
 

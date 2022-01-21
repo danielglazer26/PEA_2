@@ -1,5 +1,6 @@
 #include "../Header/Matrix.h"
 #include <iostream>
+#include <random>
 
 ///tworzenie tablicy wag
 void Matrix::createTables() {
@@ -18,6 +19,21 @@ void Matrix::loadData() {
 
     ///wczytujemy podstawowe dane z pliku
     if (loadFromFile->openFile()) {
+        size = loadFromFile->getDataFromFile();
+        createTables();
+        createMatrix(loadFromFile);
+        std::cout << "Wczytano dane\n";
+
+    }
+    delete loadFromFile;
+}
+
+///wczytanie pliku
+void Matrix::loadDataName(std::string fileName) {
+    auto *loadFromFile = new LoadFromFile();
+
+    ///wczytujemy podstawowe dane z pliku
+    if (loadFromFile->openFileName(fileName)) {
         size = loadFromFile->getDataFromFile();
         createTables();
         createMatrix(loadFromFile);
@@ -66,6 +82,42 @@ void Matrix::showMatrixWages() {
     }
     std::cout << std::endl;
     std::cout << std::endl;
+
+}
+
+///tworzenie nowego grafu na podstawie liczby wierzchołków
+void Matrix::createNewMatrix(bool directed, int vNumber) {
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(1, vNumber - 1);
+    std::uniform_int_distribution<> dist2(0, 100000);
+
+    size = vNumber;
+
+    createTables();
+
+
+    if (!directed) {
+        for (int i = 0; i < size; i++) {
+            matrixWeights[i][i] = INT_MAX;
+            for (int j = i + 1; j < size; j++) {
+                matrixWeights[i][j] = dist2(gen);
+                matrixWeights[j][i] = matrixWeights[i][j];
+            }
+        }
+
+    } else {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (i == j)
+                    matrixWeights[i][i] = INT_MAX;
+                else
+                    matrixWeights[i][j] = dist2(gen);
+            }
+        }
+    }
+    //showMatrixWages();
 
 }
 
